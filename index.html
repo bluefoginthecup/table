@@ -30,9 +30,7 @@
           <option value="round">원탁</option>
         </select>
       </label>
-      <label>테이블 색상
-  <input id="tableColor" type="color" value="#8B7D6B" />
-</label>
+      
 
 
       <!-- 직사각 전용 -->
@@ -113,14 +111,21 @@
     <!-- 테이블/제작 선택 필드셋들 아래에 추가 -->
 <fieldset>
   <legend>페인트</legend>
-  <label class="inline">
-    <input id="paintMode" type="checkbox" /> 페인트 모드
-  </label>
-  <label>색상
-    <input id="paintColor" type="color" value="#ffcc66" />
-  </label>
-  <p class="muted">페인트 모드 ON → 3D에서 러너/테이블보를 클릭하면 해당 오브젝트에 색이 적용됩니다.</p>
+  <div class="paint-ui">
+    <canvas id="colorWheel" width="180" height="180" class="paint-wheel"></canvas>
+    <div class="paint-controls">
+      <label>밝기(V)
+        <input id="wheelV" type="range" min="0" max="100" value="85" />
+      </label>
+      <div class="row items-center">
+        <div id="paintSwatch" class="swatch" title="현재 색"></div>
+        <div id="paintStatus" class="status">선택: 없음</div>
+      </div>
+      <p class="muted">캔버스 클릭=칠하기 • <kbd>Alt</kbd>+클릭=스포이드(색 가져오기)</p>
+    </div>
+  </div>
 </fieldset>
+
 
 
     <div class="actions">
