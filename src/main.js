@@ -5,6 +5,10 @@ import { store } from './core/store.js';
 import { updateScene } from './systems/updateScene.js';
 import { bindControls } from './ui/controls.js';
 import { runSelfTests, renderTestList } from './systems/tests.js';
+import { flags, setEngine } from './core/config.js';
+import { bindPaint } from './ui/paint.js';
+
+
 
 const appEl = document.getElementById('app');
 
@@ -35,9 +39,22 @@ window.addEventListener('ui:apply', (e) => {
   renderAll();
 });
 
++// 🎨 클릭-페인트 활성화
++bindPaint(three, store, renderAll);
+
 
 // first render
 renderAll();
 startLoop(three);
 
 window.__TableApp = { three, store, renderAll, stop: () => stopLoop(three) };
+
+window.addEventListener('engine:changed', () => window.__TableApp?.renderAll?.());
+
+// 개발용 토글(키보드 E)
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'e') {
+    const next = flags.engine === 'v1' ? 'v2' : 'v1';
+    setEngine(next, { persist: true, updateUrl: true });
+  }
+});

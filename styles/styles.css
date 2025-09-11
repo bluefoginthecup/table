@@ -16,3 +16,4 @@
     main.stage{position:relative}
     #app{position:absolute;inset:0}
     .hidden{display:none}
+body.paint-mode #app { cursor: crosshair; }

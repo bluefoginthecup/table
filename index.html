@@ -23,12 +23,17 @@
     <!-- 1) 테이블 형태 및 사이즈 입력 -->
     <fieldset>
       <legend>테이블 형태</legend>
+    
       <label>
         <select id="tableShape">
           <option value="rect">직사각</option>
           <option value="round">원탁</option>
         </select>
       </label>
+      <label>테이블 색상
+  <input id="tableColor" type="color" value="#8B7D6B" />
+</label>
+
 
       <!-- 직사각 전용 -->
       <div id="rectTableGroup" class="row">
@@ -104,6 +109,19 @@
       </label>
       <p class="muted">기본값: 지름 = 테이블 지름 + (드롭 × 2)</p>
     </fieldset>
+
+    <!-- 테이블/제작 선택 필드셋들 아래에 추가 -->
+<fieldset>
+  <legend>페인트</legend>
+  <label class="inline">
+    <input id="paintMode" type="checkbox" /> 페인트 모드
+  </label>
+  <label>색상
+    <input id="paintColor" type="color" value="#ffcc66" />
+  </label>
+  <p class="muted">페인트 모드 ON → 3D에서 러너/테이블보를 클릭하면 해당 오브젝트에 색이 적용됩니다.</p>
+</fieldset>
+
 
     <div class="actions">
       <button id="calcBtn">계산</button>

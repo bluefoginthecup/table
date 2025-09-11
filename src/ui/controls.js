@@ -16,6 +16,7 @@ export function bindControls(store, renderAll, runTestsCb) {
   const tblL         = $('#tblL');
   const tblD         = $('#tblD');
   const tblH         = $('#tblH');
+  const tableColor   = $('#tableColor');
 
   const runnerW      = $('#runnerW');
   const runnerL      = $('#runnerL');
@@ -208,6 +209,12 @@ updateProdUI();
       table:   res.table,
       product: res.product
     });
+
+
+  // ✅ 테이블 색상도 저장 (paint 맵에 병합됨)
+ const hex = tableColor?.value;
+ if (hex) store.set({ paint: { table: hex } });
+
 
     // 3D 갱신
     renderAll();
