@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Simul Table — UI Rev</title>
+  <link rel="stylesheet" href="./styles/styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.160.0",
+      "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+ 
+</head>
+<body>
+  <aside class="side">
+    <h1>3D Simul Table</h1>
+
+   
+    <!-- 1) 테이블 형태 및 사이즈 입력 -->
+    <fieldset>
+      <legend>테이블 형태</legend>
+      <label>
+        <select id="tableShape">
+          <option value="rect">직사각</option>
+          <option value="round">원탁</option>
+        </select>
+      </label>
+
+      <!-- 직사각 전용 -->
+      <div id="rectTableGroup" class="row">
+        <label>폭(cm)
+          <input id="tblW" type="number" min="1" step="1" value="60" />
+        </label>
+        <label>길이(cm)
+          <input id="tblL" type="number" min="1" step="1" value="180" />
+        </label>
+      </div>
+<label>높이(cm)
+<input id="tblH" type="number" min="1" step="1" value="75" />
+</label>
+</fieldset>
+      <!-- 원탁 전용 -->
+      <div id="roundTableGroup" class="row hidden">
+        <label>지름(cm)
+          <input id="tblD" type="number" min="1" step="1" value="180" />
+        </label>
+      </div>
+    
+    <!-- 2) 제작 항목 선택: 러너 / 사각 테이블보 / 원탁 테이블보 -->
+    <fieldset>
+      <legend>제작 선택</legend>
+      <label class="inline"><input type="radio" name="prod" value="runner" checked /> 러너</label>
+      <label class="inline"><input type="radio" name="prod" value="rectcloth" /> 사각 테이블보</label>
+      <label class="inline"><input type="radio" name="prod" value="roundcloth" /> 원탁 테이블보</label>
+    </fieldset>
+
+    <!-- 3) 각 항목별 사이즈 입력 -->
+    <!-- 러너 -->
+    <fieldset id="runnerGroup">
+      <legend>러너 사이즈</legend>
+      <div class="row">
+        <label>러너 폭(cm)
+          <input id="runnerW" type="number" min="1" step="1" />
+        </label>
+        <label>러너 길이(cm)
+          <input id="runnerL" type="number" min="1" step="1" />
+        </label>
+      </div>
+      <label>드롭(cm)
+        <input id="runnerDrop" type="number" min="0" step="1" value="15" />
+      </label>
+      <p class="muted">기본값: 폭 = ⌈테이블 폭 × 0.4⌉, 길이 = 반올림(테이블 길이 + 30)</p>
+    </fieldset>
+
+    <!-- 사각 테이블보 -->
+    <fieldset id="rectClothGroup" class="hidden">
+      <legend>사각 테이블보</legend>
+      <div class="row">
+        <label>테이블보 폭(cm)
+          <input id="rectClothW" type="number" min="1" step="1" />
+        </label>
+        <label>테이블보 길이(cm)
+          <input id="rectClothL" type="number" min="1" step="1" />
+        </label>
+      </div>
+      <label>드롭(cm)
+        <input id="rectDrop" type="number" min="0" step="1" value="15" />
+      </label>
+      <p class="muted">기본값: (폭, 길이) = 테이블 사이즈 + (드롭 × 2)</p>
+    </fieldset>
+
+    <!-- 원탁 테이블보 -->
+    <fieldset id="roundClothGroup" class="hidden">
+      <legend>원탁 테이블보</legend>
+      <label>테이블보 지름(cm)
+        <input id="roundClothD" type="number" min="1" step="1" />
+      </label>
+      <label>드롭(cm)
+        <input id="roundDrop" type="number" min="0" step="1" value="15" />
+      </label>
+      <p class="muted">기본값: 지름 = 테이블 지름 + (드롭 × 2)</p>
+    </fieldset>
+
+    <div class="actions">
+      <button id="calcBtn">계산</button>
+      <button id="applyBtn">적용(3D)</button>
+      <button id="resetBtn">리셋</button>
+    </div>
+    <div id="calcMsg" aria-live="polite"></div>
+  </aside>
+
+  <main class="stage">
+    <div id="app"></div>
+  </main>
+
+  <!-- 기존 3D 초기화 스크립트는 유지 -->
+  <script type="module" src="./src/main.js"></script>
+
+</body>
+</html>

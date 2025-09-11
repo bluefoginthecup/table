@@ -1,0 +1,10 @@
+# 빌드
+build/
+*.log
+
+# OS 파일
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
