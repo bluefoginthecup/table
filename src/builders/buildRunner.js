@@ -22,7 +22,6 @@ const hover = 1.0; // cm (원하면 UI로 빼도 됨)
                 ? Number(table.diameter ?? 180)
                 : Number(table.length ?? 180))));
   const halfTable = Ltbl / 2;
-
   
   // 러너 치수
   const W   = Math.max(1, Number(r.width  ?? 30));    // 러너 폭(Z)
@@ -30,6 +29,12 @@ const hover = 1.0; // cm (원하면 UI로 빼도 됨)
   const drop= Math.max(0, Number(r.drop   ?? 15));    // 떨어지는 높이
   const shape = r.rshape === 'hex' ? 'hex' : 'rect';
   const tipLen= Math.max(1, Number.isFinite(r.rtip) ? Number(r.rtip) : drop); // hex 팁 길이
+
+ // ✅ 상판 위 ‘평평 구간’ 길이
+ //    - r.topFlat가 있으면 그 값을 사용
+ //    - 없으면 “테이블 길이 + 5cm”를 기본값으로(러너 총길이 L을 넘지 않게 clamp)
+ const topFlatLen = Math.max(0, Math.min(L, Number.isFinite(r.topFlat) ? Number(r.topFlat) : (Ltbl + 10)));
+ const halfFlat   = topFlatLen / 2;
 
   const group = new THREE.Group();
   group.name = 'Runner';
@@ -70,26 +75,24 @@ const hover = 1.0; // cm (원하면 UI로 빼도 됨)
  
 
   const pos = geomTop.attributes.position;
-  // 힌지 폭을 아주 작게 → 엣지에서 바로 '수직'에 가깝게 떨어짐
-  const hinge = Math.max(0.8, Math.min(1.5, drop * 0.12));   // 0.6~1.5cm
-  const clothClear = 1.2;
-  
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    // 테이블 끝 밖으로 나간 거리(로컬 X 기준)
-    const over = Math.max(0, Math.abs(x) - halfTable);
-    if (over <= 0) continue;
-    const t  = smooth01(over / hinge);         // 0~1 (아주 짧은 구간에서 1이 됨)
-    const dy = drop * t;
-    pos.setY(i, y - dy);                       // 아래로 떨어뜨림
-    // X는 거의 고정(수직 느낌). 살짝만 바깥으로 빼서 모서리 겹침 방지
-    const sign = Math.sign(x) || 1;
-    const outExtra = Math.min(drop, 5.0);           // 드롭에 비례해 최대 2cm 추가
-const xEdge = halfTable + clothClear + outExtra;
-    pos.setX(i, sign * xEdge);
-  }
-
+  // 1) 힌지선 스냅: ±halfFlat 근처 버텍스를 힌지선에 정렬
+ const seamSnap = 1.5;                           // 힌지 부근 버텍스 스냅 폭(cm)
+ for (let i = 0; i < pos.count; i++) {
+   const x = pos.getX(i);
+   const dx = Math.abs(Math.abs(x) - halfFlat);
+   if (dx <= seamSnap) pos.setX(i, Math.sign(x) * halfFlat);
+ }
+ // 2) 드롭: 힌지 바깥은 고정 X로 ‘바깥’에 두고 Y만 drop
+ const clothClear = 1.5;                         // 테이블 모서리에서 띄움
+ const outExtra   = Math.min(drop, 5.0);         // 살짝 더 바깥(옵션)
+ const xEdge      = halfFlat + clothClear + outExtra;
+ for (let i = 0; i < pos.count; i++) {
+   const x = pos.getX(i);
+   if (Math.abs(x) <= halfFlat + 1e-4) continue; // 상판 위 구간은 그대로
+   const y = pos.getY(i);
+   pos.setY(i, y - drop);
+   pos.setX(i, (Math.sign(x) || 1) * xEdge);
+ }
 
   pos.needsUpdate = true;
   geomTop.computeVertexNormals();
