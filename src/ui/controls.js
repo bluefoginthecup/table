@@ -21,6 +21,22 @@ export function bindControls(store, renderAll, runTestsCb) {
   const runnerW      = $('#runnerW');
   const runnerL      = $('#runnerL');
   const runnerDrop   = $('#runnerDrop');
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  const runnerShapeRadios = $$('input[name="runnerShape"]');
+  const runnerTip     = $('#runnerTip');
+  const runnerHexOpts = $('#runnerHexOpts');
+
+ const getRunnerShape = () => {
+   let v = 'rect';
+   runnerShapeRadios.forEach(r => { if (r.checked) v = r.value; });
+   return v;
+ };
+ // 모양 바뀌면 팁 입력 표시/숨김
+ runnerShapeRadios.forEach(r => r.addEventListener('change', () => {
+   const isHex = getRunnerShape() === 'hex';
+   runnerHexOpts && runnerHexOpts.classList.toggle('hidden', !isHex);
+ }));
 
   const rectClothW   = $('#rectClothW');
   const rectClothL   = $('#rectClothL');
@@ -108,14 +124,21 @@ export function bindControls(store, renderAll, runTestsCb) {
     const drop = num(runnerDrop && runnerDrop.value) || 0;
     let rw = readOrPh(runnerW, Number.isFinite(tW) ? Math.ceil(tW * 0.4) : NaN);
     let rl = readOrPh(runnerL, Number.isFinite(tL) ? Math.round(tL + 30) : NaN);
+     const rshape = getRunnerShape();              // 'rect' | 'hex'
+     const rtip   = num(runnerTip?.value);         // cm (hex 전용, NaN이면 undefined)
+
+
 
     const msg = `러너 완성 사이즈는 ${rw} × ${rl} cm 입니다.` + (drop > 0 ? ` 테이블 밖으로 ${drop}cm 씩 떨어집니다.` : '');
     if (calcMsg) { calcMsg.textContent = msg; } // ⛳ W030 회피
 
     // ⛳ W014 회피: 삼항을 한 줄/괄호로
     return {
-      table: (shape === 'rect') ? { shape, width: tW, length: tL , height: tH} : { shape, diameter: tD, height: tH},
-      product: { type: 'runner', w: rw, l: rl, drop }
+      table: (shape === 'rect') 
+      ? { shape, width: tW, length: tL , height: tH} 
+      : { shape, diameter: tD, height: tH},
+      product: { type: 'runner', w: rw, l: rl, drop, rshape, rtip }
+      
     };
   }
 
@@ -128,7 +151,9 @@ export function bindControls(store, renderAll, runTestsCb) {
     if (calcMsg) { calcMsg.textContent = msg; } // ⛳ W030 회피
 
     return {
-      table: (shape === 'rect') ? { shape, width: tW, length: tL , height: tH} : { shape, diameter: tD , height: tH},
+      table: (shape === 'rect') 
+      ? { shape, width: tW, length: tL , height: tH} 
+      : { shape, diameter: tD , height: tH},
       product: { type: 'rectcloth', w: cw, l: cl, drop }
     };
   }
@@ -141,7 +166,9 @@ export function bindControls(store, renderAll, runTestsCb) {
     if (calcMsg) { calcMsg.textContent = msg; } // ⛳ W030 회피
 
     return {
-      table: (shape === 'rect') ? { shape, width: tW, length: tL } : { shape, diameter: tD },
+      table: (shape === 'rect') 
+      ? { shape, width: tW, length: tL } 
+      : { shape, diameter: tD },
       product: { type: 'roundcloth', d: cd, drop }
     };
   }

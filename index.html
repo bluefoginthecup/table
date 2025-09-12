@@ -64,6 +64,16 @@
     <!-- 3) 각 항목별 사이즈 입력 -->
     <!-- 러너 -->
     <fieldset id="runnerGroup">
+      <div class="row">
+  <label class="inline"><input type="radio" name="runnerShape" id="runnerShapeRect" value="rect" checked> 직사각</label>
+  <label class="inline" style="margin-left:12px;"><input type="radio" name="runnerShape" id="runnerShapeHex" value="hex"> 육각(뾰족)</label>
+</div>
+<div id="runnerHexOpts" class="row hidden">
+  <label>팁 길이(cm)
+    <input id="runnerTip" type="number" min="1" step="1" placeholder="(기본=드롭)" />
+  </label>
+</div>
+
       <legend>러너 사이즈</legend>
       <div class="row">
         <label>러너 폭(cm)

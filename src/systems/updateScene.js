@@ -60,17 +60,18 @@ export function updateScene(scene, store) {
  const prod = state.product || {};
 
 if (prod.type === 'runner') {
-  // (기존) 러너 생성...
-  const dropStrength = Math.max(0, Math.min(1, Number(prod.drop ?? 15) / 40));
-  const runnerState = {
-    table: state.table,
-    runner: {
-      width: Number(prod.w ?? 24),
-      length: Number(prod.l ?? 210),
-      dropStrength
-    }
-  };
-  const runner = buildRunner(runnerState);
+   const runnerState = {
+     table: state.table,
+     runner: {
+       width:  Number(prod.w ?? 24),
+       length: Number(prod.l ?? 210),
+       drop:   Number(prod.drop ?? 15),
+       rshape: prod.rshape || 'rect',
+       rtip:   Number.isFinite(prod.rtip) ? Number(prod.rtip) : undefined
+     },
+     meas: t  // 필요시 확장용 (여기선 table 길이만 쓰므로 없어도 됨)
+   };
+   const runner = buildRunner(runnerState);
 
   runner.name = runner.name || 'Runner';
     runner.userData.paintable = true;
