@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>테이블 러너/테이블보 시뮬레이터 (PBD)</title>
+  <style>
+    html, body { margin:0; padding:0; height:100%; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:#0b0c10; color:#e6edf3;}
+    #app { display:flex; height:100%; }
+    #sidebar {
+      width: 360px; max-width: 46vw; background:#12141a; border-right:1px solid #222; padding:16px; overflow:auto;
+      box-shadow: 0 0 20px rgba(0,0,0,.3) inset;
+    }
+    #sidebar h2 { margin: 6px 0 10px; font-size: 16px; color:#9ccaff; }
+    #sidebar .group { margin-bottom: 16px; padding-bottom: 10px; border-bottom:1px dashed #2a2f3a; }
+    label { display:block; margin:6px 0 3px; font-size: 13px; opacity:.9; }
+    input[type="number"], select { width:100%; padding:8px; border-radius:10px; border:1px solid #2a2f3a; background:#0f1116; color:#cdd9e5; }
+    input[type="range"] { width:100%; }
+    .row { display:flex; gap:8px; }
+    .row > div { flex:1; }
+    .radio-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .radio-row label { display:flex; gap:6px; align-items:center; margin:0; }
+    button.primary {
+      width:100%; padding:10px 12px; background:#1f6feb; color:white; border:none; border-radius:12px; cursor:pointer;
+      font-weight:600; margin-top:8px;
+    }
+    button.secondary { width:100%; padding:8px 10px; background:#222b36; color:#cdd9e5; border:1px solid #2a2f3a; border-radius:12px; cursor:pointer; margin-top:8px; }
+    #legend { font-size:12px; opacity:.8; }
+    #canvas-wrap { position:relative; flex:1; }
+    #three { position:absolute; inset:0; display:block; width:100%; height:100%; }
+    .pill { display:inline-block; padding:4px 8px; border-radius:999px; font-size:11px; background:#1b2030; color:#9ccaff; border:1px solid #2a2f3a; }
+    .tip { font-size:12px; color:#9bbbdc; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+    .muted { opacity:.7; }
+    .click-tip { font-size:12px; color:#cdd9e5; background:#232a36; padding:6px 8px; border-radius:10px; border:1px solid #2a2f3a; }
+    .inline { display:inline-block; margin-left:8px; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="group">
+      <div class="pill">1) 테이블</div>
+      <h2>테이블 타입</h2>
+      <div class="radio-row" id="tableType">
+        <label><input type="radio" name="tableType" value="rect" checked> 직사각</label>
+        <label><input type="radio" name="tableType" value="round"> 원탁</label>
+      </div>
+      <div id="rectInputs">
+        <div class="row">
+          <div><label>상판 폭 (cm)</label><input id="rectW" type="number" min="40" max="300" step="1" value="90"></div>
+          <div><label>상판 길이 (cm)</label><input id="rectL" type="number" min="40" max="400" step="1" value="180"></div>
+        </div>
+        <div class="row">
+          <div><label>다리 높이 (cm)</label><input id="rectH" type="number" min="40" max="120" step="1" value="75"></div>
+          <div><label>상판 두께 (cm)</label><input id="rectT" type="number" min="1" max="10" step="0.5" value="3"></div>
+        </div>
+      </div>
+      <div id="roundInputs" style="display:none;">
+        <div class="row">
+          <div><label>상판 지름 (cm)</label><input id="roundD" type="number" min="60" max="260" step="1" value="150"></div>
+          <div><label>다리 높이 (cm)</label><input id="roundH" type="number" min="40" max="120" step="1" value="75"></div>
+        </div>
+        <div class="row">
+          <div><label>상판 두께 (cm)</label><input id="roundT" type="number" min="1" max="10" step="0.5" value="3"></div>
+          <div><label>받침 반경 (cm)</label><input id="roundBaseR" type="number" min="10" max="80" step="1" value="35"></div>
+        </div>
+      </div>
+      <button class="secondary" id="rebuildTable">테이블 재구성</button>
+    </div>
+
+    <div class="group">
+      <div class="pill">2) 러너 / 테이블보</div>
+      <div class="radio-row" id="clothKind">
+        <label><input type="radio" name="clothKind" value="runner" checked> 러너</label>
+        <label><input type="radio" name="clothKind" value="tablecloth"> 테이블보</label>
+      </div>
+
+      <div id="runnerInputs">
+        <label>러너 타입</label>
+        <div class="radio-row" id="runnerType">
+          <label><input type="radio" name="runnerType" value="rect" checked> 직사각</label>
+          <label><input type="radio" name="runnerType" value="hex"> 육각</label>
+        </div>
+        <div class="row">
+          <div><label>폭 (cm)</label><input id="runnerW" type="number" min="10" max="200" step="1" value="40"></div>
+          <div><label>길이 (cm)</label><input id="runnerL" type="number" min="40" max="500" step="1" value="220"></div>
+        </div>
+        <div class="row">
+          <div><label>드롭 (cm)</label><input id="runnerDrop" type="number" min="0" max="60" step="1" value="15"></div>
+          <div><label>두께감 (mm)</label><input id="runnerThick" type="number" min="0" max="5" step="0.5" value="10"></div>
+        </div>
+        <div class="row">
+          <div><label>지지 오프셋(+5cm 고정)</label><input disabled value="+5.0 cm"></div>
+          <div><label>해상도(그리드)</label><input id="runnerRes" type="number" min="6" max="60" step="2" value="26"></div>
+        </div>
+        <button class="primary" id="buildRunnerBtn">러너 생성/갱신</button>
+      </div>
+
+      <div id="tableclothInputs" style="display:none;">
+        <label>테이블보 타입</label>
+        <div class="radio-row" id="tableclothType">
+          <label><input type="radio" name="tableclothType" value="rect" checked> 사각 테이블보</label>
+          <label><input type="radio" name="tableclothType" value="round"> 원탁 테이블보</label>
+        </div>
+        <div class="grid" id="rectClothGrid">
+          <div>
+            <label>폭 (cm)</label>
+            <input id="clothW" type="number" min="40" max="400" step="1" value="140">
+          </div>
+          <div>
+            <label>길이 (cm)</label>
+            <input id="clothL" type="number" min="40" max="500" step="1" value="240">
+          </div>
+          <div>
+            <label>드롭 (cm)</label>
+            <input id="clothDrop" type="number" min="0" max="80" step="1" value="25">
+          </div>
+          <div>
+            <label>두께감 (mm)</label>
+            <input id="clothThick" type="number" min="0" max="5" step="0.5" value="2">
+          </div>
+          <div>
+            <label>해상도(그리드)</label>
+            <input id="clothRes" type="number" min="8" max="90" step="2" value="40">
+          </div>
+        </div>
+
+        <div id="roundClothGrid" style="display:none;">
+          <div class="row">
+            <div><label>지름 (cm)</label><input id="clothD" type="number" min="60" max="500" step="1" value="220"></div>
+            <div><label>드롭 (cm)</label><input id="clothDropR" type="number" min="0" max="80" step="1" value="25"></div>
+          </div>
+          <div class="row">
+            <div><label>두께감 (mm)</label><input id="clothThickR" type="number" min="0" max="5" step="0.5" value="2"></div>
+            <div><label>해상도(그리드)</label><input id="clothResR" type="number" min="10" max="120" step="2" value="56"></div>
+          </div>
+        </div>
+
+        <button class="primary" id="buildClothBtn">테이블보 생성/갱신</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="pill">3) 색상</div>
+      <div class="row">
+        <div><label>천 색상</label><input id="clothColor" type="color" value="#d8d0c6"></div>
+        <div><label>테이블 색상</label><input id="tableColor" type="color" value="#9e6b3f"></div>
+      </div>
+      <div class="click-tip">캔버스에서 <b>천 · 테이블</b>을 클릭해도 색상을 바꿀 수 있어요.</div>
+    </div>
+
+    <div class="group">
+      <div class="pill">도움말</div>
+      <div class="tip">
+        · 드롭은 <b>테이블 상판 크기 + 5cm</b> 지점에서 수직 낙하하도록 지지면을 확장합니다.<br/>
+        · 천은 상판 위 <b>2mm</b> 띄워 시작하고, PBD(Verlet)로 자연스럽게 내려옵니다.<br/>
+        · 좌클릭 드래그로 회전, 휠로 줌, 우클릭 드래그로 이동.
+      </div>
+    </div>
+  </aside>
+
+  <main id="canvas-wrap">
+    <canvas id="three"></canvas>
+  </main>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
